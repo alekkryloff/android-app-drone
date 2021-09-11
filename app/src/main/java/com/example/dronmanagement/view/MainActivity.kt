@@ -14,7 +14,7 @@ import com.example.dronmanagement.model.SharedPreference
 
 
 class MainActivity : AppCompatActivity() {
-    lateinit var etIpPort: EditText
+    private lateinit var etIpPort: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
