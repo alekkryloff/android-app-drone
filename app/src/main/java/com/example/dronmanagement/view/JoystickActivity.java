@@ -1,8 +1,10 @@
-package com.example.dronmanagement;
+package com.example.dronmanagement.view;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import com.example.dronmanagement.R;
 
 public class JoystickActivity extends AppCompatActivity {
 

@@ -1,9 +1,10 @@
-package com.example.dronmanagement
+package com.example.dronmanagement.view
 
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import com.example.dronmanagement.R
 
 
 class MainActivity : AppCompatActivity() {
