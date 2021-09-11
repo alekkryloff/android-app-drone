@@ -15,11 +15,15 @@ import com.example.dronmanagement.model.SharedPreference
 
 class MainActivity : AppCompatActivity() {
     private lateinit var etIpPort: EditText
+    private lateinit var pref: SharedPreference
+    private var ipPort = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         etIpPort = findViewById(R.id.etIpPort)
+        pref = SharedPreference(this)
+        etIpPort.setText(pref.getIpPort())
 
         findViewById<Button>(R.id.btnJoystick).setOnClickListener {
             startActivity(Intent(this, JoystickActivity::class.java))
@@ -33,14 +37,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun initProcesses(){
-        val pref = SharedPreference(this)
-        pref.setMode(200)
-        Log.i("debug", pref.getMode().toString())
-    }
-
     private fun handleIpPort(){
         if (etIpPort.text.matches(Regex(getString(R.string.ip_port_regex)))){
+            ipPort = etIpPort.text.toString()
+            pref.setIpPort(ipPort)
             connectRaspberry()
         } else {
             Log.i("debug", getString(R.string.wrong_ip))
@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun connectRaspberry(){
-        Log.i("debug", getString(R.string.connecting) + " " + etIpPort.text)
+        Log.i("debug", getString(R.string.connecting) + " " + ipPort)
         Toast.makeText(this, getString(R.string.connecting), Toast.LENGTH_SHORT).show()
     }
 }
