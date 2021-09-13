@@ -3,6 +3,7 @@
     <string name="enter_ip">Enter Raspberry IP:Port</string>
     <string name="btn_connect">Connect</string>
     <string name="btn_open_joystick">Open Joystick</string>
+    <string name="btn_open_map">Open Map</string>
 
     <string name="ip_port_regex" tools:ignore="TypographyDashes">[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}:[0-9]{1,5}</string>
     <string name="wrong_ip">Wrong IP:Port. Please, check!</string>

@@ -28,6 +28,9 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnJoystick).setOnClickListener {
             startActivity(Intent(this, JoystickActivity::class.java))
         }
+        findViewById<Button>(R.id.btnMap).setOnClickListener {
+            startActivity(Intent(this, MapActivity::class.java))
+        }
         findViewById<Button>(R.id.btnConnect).setOnClickListener {
             this.currentFocus?.let { view ->
                 val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager

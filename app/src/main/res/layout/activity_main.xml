@@ -49,8 +49,17 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="150dp"
-        tools:layout_editor_absoluteX="156dp"
-        tools:layout_editor_absoluteY="440dp" />
+        android:layout_marginBottom="150dp" />
+
+    <Button
+        android:id="@+id/btnMap"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/btn_open_map"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="100dp" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
