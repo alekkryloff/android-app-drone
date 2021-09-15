@@ -24,8 +24,9 @@ class SharedPreference(ctx: Context) {
         return sharedPreference.getInt(variable, 0)
     }
 
-    fun setIpPort(ip: String){ setString("IP:Port", ip) }
-    fun getIpPort(): String { return getString("IP:Port") }
+    fun setIp(ip: String){ setString("IP", ip) }
+    fun getIp(): String { return getString("IP") }
+    fun getPort(): Int { return 8080 }
 
     fun setMode(mode: Int){ setInt("MODE", mode) }
     fun getMode(): Int { return getInt("MODE") }

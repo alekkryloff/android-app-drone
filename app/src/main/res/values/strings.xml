@@ -5,7 +5,9 @@
     <string name="btn_open_joystick">Open Joystick</string>
     <string name="btn_open_map">Open Map</string>
 
-    <string name="ip_port_regex" tools:ignore="TypographyDashes">[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}:[0-9]{1,5}</string>
+    <string name="ip_regex" tools:ignore="TypographyDashes">[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}</string>
     <string name="wrong_ip">Wrong IP:Port. Please, check!</string>
     <string name="connecting">Trying to connect…</string>
+    <string name="connectSuccess">Connected</string>
+    <string name="connectIssue">Connection Issue</string>
 </resources>
