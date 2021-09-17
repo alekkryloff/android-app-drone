@@ -9,5 +9,6 @@
     <string name="wrong_ip">Wrong IP:Port. Please, check!</string>
     <string name="connecting">Trying to connect…</string>
     <string name="connectSuccess">Connected</string>
+    <string name="connectStop">Disconnected</string>
     <string name="connectIssue">Connection Issue</string>
 </resources>

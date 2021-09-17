@@ -1,13 +1,15 @@
 package com.example.dronmanagement.view
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.Button
-import android.widget.EditText
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.dronmanagement.R
 import com.example.dronmanagement.connection.SocketConnection
@@ -17,15 +19,28 @@ import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
     private lateinit var etIP: EditText
+    private lateinit var tvLogs: TextView
+    private lateinit var btnConnect: Button
+    private lateinit var btnLayout: LinearLayout
+    private lateinit var scrollView: ScrollView
+
     private lateinit var pref: SharedPreference
     private lateinit var conn: SocketConnection
     private var ip = ""
     private val logTag = "debug"
+    private var connectionStarted = false
+    private var logs = ""
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         etIP = findViewById(R.id.etIpPort)
+        tvLogs = findViewById(R.id.tvLogs)
+        btnConnect = findViewById(R.id.btnConnect)
+        btnLayout = findViewById(R.id.btnLayout)
+        scrollView = findViewById(R.id.scrollView)
+
         pref = SharedPreference(this)
         etIP.setText(pref.getIp())
 
@@ -35,13 +50,25 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnMap).setOnClickListener {
             startActivity(Intent(this, MapActivity::class.java))
         }
-        findViewById<Button>(R.id.btnConnect).setOnClickListener {
-            this.currentFocus?.let { view ->
-                val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
-                imm?.hideSoftInputFromWindow(view.windowToken, 0)
+
+        btnConnect.setOnClickListener {
+            if (!connectionStarted){
+                this.currentFocus?.let { view ->
+                    val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+                    imm?.hideSoftInputFromWindow(view.windowToken, 0)
+                }
+                handleIpPort()
+            } else {
+                btnLayout.visibility = View.INVISIBLE
+                connectionStarted = false
+                etIP.visibility = View.VISIBLE
+                btnConnect.text = "Connect"
+                logs += "-- Disconnected --\n"
+                Toast.makeText(this, getString(R.string.connectStop), Toast.LENGTH_SHORT).show()
             }
-            handleIpPort()
         }
+
+        runUpdateLogsTextView()
     }
 
     private fun handleIpPort(){
@@ -50,7 +77,7 @@ class MainActivity : AppCompatActivity() {
             pref.setIp(ip)
             conn = SocketConnection(ip, pref.getPort())
             conn.connect()
-            runCheckThread()
+            runCheckConnection()
         } else {
             Log.i(logTag, getString(R.string.wrong_ip))
             Toast.makeText(this, getString(R.string.wrong_ip), Toast.LENGTH_SHORT).show()
@@ -60,35 +87,65 @@ class MainActivity : AppCompatActivity() {
 
     private var finish = false
     private var threadSteps = 0
-    private fun checkResponse(toastSuccess: String, toastIssue: String){
-        if (threadSteps < 10) {
+    @SuppressLint("SetTextI18n")
+    private fun checkConnection(){
+        if (threadSteps < 50) {
             if (!finish) {
-                Thread.sleep(50)
+                Thread.sleep(10)
                 threadSteps += 1
                 if (conn.iMsg != "") {
-                    initCheckTread()
-                    Toast.makeText(this, toastSuccess, Toast.LENGTH_SHORT).show()
+                    finish = true
                     conn.iMsg = ""
-                } else {
-                    Toast.makeText(this, toastIssue, Toast.LENGTH_SHORT).show()
-                }
+                    logs += "-- Connected --\n"
+                    runUpdateLogs()
+
+                    Toast.makeText(this, getString(R.string.connectSuccess), Toast.LENGTH_SHORT).show()
+                    etIP.visibility = View.GONE
+                    btnConnect.text = "Disconnect"
+                    btnLayout.visibility = View.VISIBLE
+                } else { checkConnection() }
             }
         } else {
-            Toast.makeText(this, toastIssue, Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.connectIssue), Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun initCheckTread(){
+    private fun runCheckConnection(){
         finish = false
         threadSteps = 0
+        thread { runOnUiThread { checkConnection() } }
     }
 
-    private fun runCheckThread(){
-        initCheckTread()
-        thread {
-            runOnUiThread {
-                checkResponse(getString(R.string.connectSuccess), getString(R.string.connectIssue))
+    private val timeStep = 10L
+    private val checkDelay = 1000L
+    @SuppressLint("SetTextI18n")
+    private fun updateLogs(){
+        if (connectionStarted) {
+            Thread.sleep(timeStep)
+            if (conn.iMsg != "") {
+                Log.i(logTag, conn.iMsg)
+                logs += "${conn.iMsg}\n"
+                Thread.sleep(checkDelay - timeStep)
+                conn.iMsg = ""
+                conn.getLogs()
             }
+            updateLogs()
         }
+    }
+
+    private fun runUpdateLogs(){
+        connectionStarted = true
+        thread {
+            conn.getLogs()
+            updateLogs()
+        }
+    }
+
+    private fun runUpdateLogsTextView(){
+        if (tvLogs.text.toString() != logs) {
+            tvLogs.text = logs
+            scrollView.post { scrollView.fullScroll(View.FOCUS_DOWN) }
+        }
+        Handler(Looper.getMainLooper()).postDelayed({runUpdateLogsTextView()}, 10)
     }
 }
