@@ -31,7 +31,6 @@ class MainActivity : AppCompatActivity() {
     private var connectionStarted = false
     private var logs = ""
 
-    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -58,17 +57,11 @@ class MainActivity : AppCompatActivity() {
                     imm?.hideSoftInputFromWindow(view.windowToken, 0)
                 }
                 handleIpPort()
-            } else {
-                btnLayout.visibility = View.INVISIBLE
-                connectionStarted = false
-                etIP.visibility = View.VISIBLE
-                btnConnect.text = "Connect"
-                logs += "-- Disconnected --\n"
-                Toast.makeText(this, getString(R.string.connectStop), Toast.LENGTH_SHORT).show()
-            }
+            } else { disconnect() }
         }
 
         runUpdateLogsTextView()
+        runAutoDisconnection()
     }
 
     private fun handleIpPort(){
@@ -82,6 +75,17 @@ class MainActivity : AppCompatActivity() {
             Log.i(logTag, getString(R.string.wrong_ip))
             Toast.makeText(this, getString(R.string.wrong_ip), Toast.LENGTH_SHORT).show()
         }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun disconnect(){
+        needDisconnect = false
+        connectionStarted = false
+        btnLayout.visibility = View.INVISIBLE
+        etIP.visibility = View.VISIBLE
+        btnConnect.text = "Connect"
+        logs += "-- Disconnected --\n"
+        Toast.makeText(this, getString(R.string.connectStop), Toast.LENGTH_SHORT).show()
     }
 
 
@@ -123,13 +127,19 @@ class MainActivity : AppCompatActivity() {
         if (connectionStarted) {
             Thread.sleep(timeStep)
             if (conn.iMsg != "") {
+                threadSteps = 0
                 Log.i(logTag, conn.iMsg)
                 logs += "${conn.iMsg}\n"
                 Thread.sleep(checkDelay - timeStep)
                 conn.iMsg = ""
                 conn.getLogs()
             }
-            updateLogs()
+            threadSteps += 1
+            if (threadSteps > 50){
+                connectionStarted = false
+            } else {
+                updateLogs()
+            }
         }
     }
 
@@ -147,5 +157,17 @@ class MainActivity : AppCompatActivity() {
             scrollView.post { scrollView.fullScroll(View.FOCUS_DOWN) }
         }
         Handler(Looper.getMainLooper()).postDelayed({runUpdateLogsTextView()}, 10)
+    }
+
+    private var needDisconnect = false
+    private fun runAutoDisconnection(){
+        if (!connectionStarted){
+            if (needDisconnect){
+                disconnect()
+            }
+        } else {
+            needDisconnect = true
+        }
+        Handler(Looper.getMainLooper()).postDelayed({runAutoDisconnection()}, 10)
     }
 }
